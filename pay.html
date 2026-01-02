@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetStream - Sign In / Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #e50914;
+            --dark-red: #b20710;
+            --light-red: #ff453a;
+            --background: #141414;
+            --surface: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --border: #2a2a2a;
+            --success: #4caf50;
+            --error: #f44336;
+            --gradient-red: linear-gradient(135deg, #e50914 0%, #ff453a 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Netflix Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-logo {
+            font-size: 48px;
+            font-weight: 900;
+            background: var(--gradient-red);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .auth-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tab-button.active {
+            color: var(--text-primary);
+            background: var(--gradient-red);
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.2);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .input-icon input {
+            padding-left: 45px;
+        }
+
+        /* Credit Selection */
+        .credit-selection {
+            margin-bottom: 25px;
+        }
+
+        .credit-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .credit-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .credit-option {
+            position: relative;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .credit-option:hover {
+            border-color: var(--primary-red);
+            transform: translateY(-2px);
+        }
+
+        .credit-option.selected {
+            border-color: var(--primary-red);
+            background: rgba(229, 9, 20, 0.1);
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2);
+        }
+
+        .credit-radio {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .credit-period {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .credit-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-red);
+            margin-bottom: 5px;
+        }
+
+        .credit-price-unit {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Verification Section */
+        .verification-section {
+            margin-bottom: 25px;
+            padding: 25px;
+            background: rgba(229, 9, 20, 0.1);
+            border-radius: 15px;
+            border: 2px solid rgba(229, 9, 20, 0.3);
+            display: none;
+        }
+
+        .verification-section.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .verification-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-red);
+            text-align: center;
+        }
+
+        .verification-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .verification-input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .verification-input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .verification-input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.3);
+        }
+
+        .verification-input.error {
+            border-color: var(--error);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--gradient-red);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .back-btn:hover {
+            border-color: var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        /* Error Messages */
+        .error-message {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Toggle Link */
+        .form-toggle {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+
+        .toggle-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .toggle-link {
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .toggle-link:hover {
+            color: var(--light-red);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .auth-container {
+                padding: 30px 20px;
+            }
+
+            .credit-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-red);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hidden codes info (for admin only - press Ctrl+Shift+H to show) */
+        .hidden-codes-info {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-red);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .hidden-codes-info.show {
+            display: block;
+        }
+
+        .code-item {
+            margin: 5px 0;
+            color: var(--primary-red);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-film"></i>
+                NetStream
+            </div>
+            <h1 class="auth-title">Welcome to NetStream</h1>
+            <p class="auth-subtitle">Sign in or create your account to start streaming</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="showTab('signin')">Sign In</button>
+            <button class="tab-button" onclick="showTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Sign In Tab -->
+        <div id="signin-tab" class="tab-content active">
+            <form id="signinForm">
+                <div class="form-group">
+                    <label class="form-label">Email or Username</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" class="form-input" id="loginEmail" placeholder="Enter your email or username" required>
+                    </div>
+                    <div class="error-message" id="loginEmailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <div class="error-message" id="loginPasswordError"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="signinBtn">
+                    <span>Sign In</span>
+                </button>
+            </form>
+
+            <div class="form-toggle">
+                <p class="toggle-text">
+                    Don't have an account? 
+                    <span class="toggle-link" onclick="showTab('signup')">Sign Up</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Sign Up Tab -->
+        <div id="signup-tab" class="tab-content">
+            <form id="signupForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" class="form-input" id="fullName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="error-message" id="nameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="form-input" id="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <div class="input-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" class="form-input" id="phoneNumber" placeholder="Enter your phone number" required>
+                    </div>
+                    <div class="error-message" id="phoneError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-input" id="password" placeholder="Create a password" required>
+                    </div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+
+                <!-- Credit Selection -->
+                <div class="credit-selection">
+                    <div class="credit-title">Select Your Plan</div>
+                    <div class="credit-options">
+                        <label class="credit-option" data-period="day">
+                            <input type="radio" name="credit" value="day" class="credit-radio" required>
+                            <div class="credit-period">1 Day</div>
+                            <div class="credit-price">350 FRW</div>
+                            <div class="credit-price-unit">per day</div>
+                        </label>
+                        
+                        <label class="credit-option" data-period="week">
+                            <input type="radio" name="credit" value="week" class="credit-radio">
+                            <div class="credit-period">1 Week</div>
+                            <div class="credit-price">2,450 FRW</div>
+                            <div class="credit-price-unit">per week</div>
+                        </label>
+                        
+                        <label class="credit-option" data-period="month">
+                            <input type="radio" name="credit" value="month" class="credit-radio">
+                            <div class="credit-period">1 Month</div>
+                            <div class="credit-price">4,550 FRW</div>
+                            <div class="credit-price-unit">per month</div>
+                        </label>
+                        
+                        <label class="credit-option" data-period="year">
+                            <input type="radio" name="credit" value="year" class="credit-radio">
+                            <div class="credit-period">1 Year</div>
+                            <div class="credit-price">54,600 FRW</div>
+                            <div class="credit-price-unit">per year</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Verification Section (Hidden Initially) -->
+                <div id="verificationSection" class="verification-section">
+                    <div class="verification-title">Enter Verification Code</div>
+                    <div class="verification-subtitle">
+                        Please enter the verification code for your <span id="selectedPlanText"></span> subscription
+                    </div>
+                    
+                    <div class="verification-input-group">
+                        <input type="text" class="verification-input" id="verificationCodeInput" 
+                               placeholder="Enter 6-digit code" maxlength="6" required>
+                    </div>
+                    
+                    <div class="verification-hint">
+                        This code validates your subscription plan
+                    </div>
+                    <div class="code-length-info">
+                        Code format: 6 characters (letters & numbers)
+                    </div>
+                    
+                    <div class="error-message" id="verificationError"></div>
+                </div>
+
+                <button type="button" class="submit-btn" id="createAccountBtn" onclick="showVerificationStep()">
+                    <span>Create Account</span>
+                </button>
+
+                <button type="button" class="submit-btn" id="verifyBtn" onclick="verifyAndCreateAccount()" style="display: none;">
+                    <span>Verify & Create Account</span>
+                </button>
+
+                <button type="button" class="back-btn" id="backBtn" onclick="goBackToRegistration()" style="display: none;">
+                    <span>← Go Back</span>
+                </button>
+            </form>
+
+            <div class="form-toggle">
+                <p class="toggle-text">
+                    Already have an account? 
+                    <span class="toggle-link" onclick="showTab('signin')">Sign In</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden codes info (for admin only - press Ctrl+Shift+H to show) -->
+    <div class="hidden-codes-info" id="hiddenCodesInfo">
+        <h4>🔑 Hidden Verification Codes</h4>
+        <div class="code-item">Day (1D): 1D125</div>
+        <div class="code-item">Week (7W): 7W168</div>
+        <div class="code-item">Month (12M): 12M12</div>
+        <div class="code-item">Year (1Y): sEl25</div>
+    </div>
+
+    <script>
+        // Hidden verification codes (user never sees these)
+        const verificationCodes = {
+            day: '1D125',
+            week: '7W168', 
+            month: '12M12',
+            year: 'sEl25'
+        };
+
+        let selectedPlan = '';
+        let isVerifying = false;
+
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Activate corresponding button
+            event.target.classList.add('active');
+            
+            // Reset verification state if switching to signup
+            if (tabName === 'signup') {
+                resetVerificationState();
+            }
+        }
+
+        // Handle credit selection
+        document.querySelectorAll('.credit-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.credit-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('.credit-radio').checked = true;
+                selectedPlan = this.dataset.period;
+            });
+        });
+
+        // Show verification step
+        function showVerificationStep() {
+            if (!validateRegistrationForm()) {
+                return;
+            }
+
+            if (!selectedPlan) {
+                alert('Please select a subscription plan');
+                return;
+            }
+
+            // Show verification section
+            const verificationSection = document.getElementById('verificationSection');
+            verificationSection.classList.add('show');
+            
+            // Update UI
+            document.getElementById('selectedPlanText').textContent = selectedPlan;
+            document.getElementById('createAccountBtn').style.display = 'none';
+            document.getElementById('verifyBtn').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            
+            // Focus on verification input
+            setTimeout(() => {
+                document.getElementById('verificationCodeInput').focus();
+            }, 300);
+            
+            isVerifying = true;
+        }
+
+        // Go back to registration
+        function goBackToRegistration() {
+            resetVerificationState();
+        }
+
+        function resetVerificationState() {
+            const verificationSection = document.getElementById('verificationSection');
+            verificationSection.classList.remove('show');
+            
+            document.getElementById('createAccountBtn').style.display = 'block';
+            document.getElementById('verifyBtn').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+            document.getElementById('verificationCodeInput').value = '';
+            
+            isVerifying = false;
+        }
+
+        // Validate registration form
+        function validateRegistrationForm() {
+            let isValid = true;
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(error => error.classList.remove('show'));
+            document.querySelectorAll('.form-input').forEach(input => input.classList.remove('error'));
+
+            // Validate name
+            const fullName = document.getElementById('fullName').value.trim();
+            if (fullName.length < 2) {
+                showError('nameError', 'Full name must be at least 2 characters');
+                isValid = false;
+            }
+
+            // Validate email
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('emailError', 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            // Validate phone
+            const phone = document.getElementById('phoneNumber').value.trim();
+            const phoneRegex = /^[\+]?[0-9]{10,15}$/;
+            if (!phoneRegex.test(phone)) {
+                showError('phoneError', 'Please enter a valid phone number');
+                isValid = false;
+            }
+
+            // Validate password
+            const password = document.getElementById('password').value;
+            if (password.length < 6) {
+                showError('passwordError', 'Password must be at least 6 characters');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            const inputElement = errorElement.previousElementSibling.querySelector('input');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            inputElement.classList.add('error');
+        }
+
+        // Verify and create account
+        function verifyAndCreateAccount() {
+            const enteredCode = document.getElementById('verificationCodeInput').value.trim().toUpperCase();
+            const expectedCode = verificationCodes[selectedPlan];
+            const verifyBtn = document.getElementById('verifyBtn');
+
+            // Clear previous error
+            document.getElementById('verificationError').classList.remove('show');
+            document.getElementById('verificationCodeInput').classList.remove('error');
+
+            if (!enteredCode) {
+                showVerificationError('Please enter the verification code');
+                return;
+            }
+
+            if (enteredCode !== expectedCode) {
+                showVerificationError('Invalid verification code. Please check and try again.');
+                // Add shake animation
+                document.getElementById('verificationCodeInput').classList.add('error');
+                setTimeout(() => {
+                    document.getElementById('verificationCodeInput').classList.remove('error');
+                }, 500);
+                return;
+            }
+
+            // Code is correct - proceed with account creation
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<div class="loading"></div> Creating Account...';
+
+            // Simulate account creation
+            setTimeout(() => {
+                const userData = {
+                    id: Date.now(),
+                    fullName: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                    password: document.getElementById('password').value,
+                    credit: selectedPlan,
+                    verificationCode: expectedCode, // Store the hidden code
+                    registrationDate: new Date().toISOString(),
+                    expiryDate: calculateExpiryDate(selectedPlan),
+                    isActive: true
+                };
+
+                // Save user (in real app, this would be backend)
+                let users = JSON.parse(localStorage.getItem('linkstream_users')) || [];
+                users.push(userData);
+                localStorage.setItem('linkstream_users', JSON.stringify(users));
+
+                console.log(`Account created with hidden verification code: ${expectedCode}`);
+                
+                // Success message
+                alert(`✅ Account created successfully!\n\nSubscription: ${selectedPlan} plan activated\nYou can now sign in to access LinkStream.`);
+                
+                // Switch to sign in tab after delay
+                setTimeout(() => {
+                    showTab('signin');
+                    resetVerificationState();
+                    // Clear form
+                    document.getElementById('signupForm').reset();
+                    document.querySelectorAll('.credit-option').forEach(opt => opt.classList.remove('selected'));
+                    selectedPlan = '';
+                }, 2000);
+            }, 2000);
+        }
+
+        function showVerificationError(message) {
+            const errorElement = document.getElementById('verificationError');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+
+        function calculateExpiryDate(creditType) {
+            const now = new Date();
+            const durations = {
+                day: 1,
+                week: 7,
+                month: 30,
+                year: 365
+            };
+            const expiryDate = new Date(now.getTime() + (durations[creditType] * 24 * 60 * 60 * 1000));
+            return expiryDate.toISOString();
+        }
+
+        // Handle sign in
+        document.getElementById('signinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const loginEmail = document.getElementById('loginEmail').value.trim();
+            const loginPassword = document.getElementById('loginPassword').value;
+            const signinBtn = document.getElementById('signinBtn');
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(error => error.classList.remove('show'));
+            
+            signinBtn.disabled = true;
+            signinBtn.innerHTML = '<div class="loading"></div> Signing In...';
+
+            // Simulate login
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('linkstream_users')) || [];
+                const user = users.find(u => 
+                    (u.email === loginEmail || u.fullName === loginEmail) && 
+                    u.password === loginPassword
+                );
+
+                if (user) {
+                    // Check if subscription is active
+                    const now = new Date();
+                    const expiryDate = new Date(user.expiryDate);
+                    
+                    if (now < expiryDate) {
+                        // Verify the hidden code matches
+                        const expectedCode = verificationCodes[user.credit];
+                        if (user.verificationCode === expectedCode) {
+                            // Save current user
+                            localStorage.setItem('linkstream_current_user', JSON.stringify(user));
+                            
+                            alert(`✅ Welcome back, ${user.fullName}!\n\nYour ${user.credit} subscription is active.`);
+                            
+                            setTimeout(() => {
+                                window.location.href = 'home.html';
+                            }, 1500);
+                        } else {
+                            alert('❌ Authentication failed. Please contact support.');
+                            signinBtn.disabled = false;
+                            signinBtn.innerHTML = '<span>Sign In</span>';
+                        }
+                    } else {
+                        // Subscription expired
+                        alert(`❌ Your ${user.credit} subscription has expired.\n\nPlease renew your subscription to continue.`);
+                        setTimeout(() => {
+                            showTab('signup');
+                        }, 2000);
+                    }
+                } else {
+                    alert('Invalid email/username or password');
+                    signinBtn.disabled = false;
+                    signinBtn.innerHTML = '<span>Sign In</span>';
+                }
+            }, 1500);
+        });
+
+        // Secret key combination to show hidden codes (Ctrl+Shift+H)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+                e.preventDefault();
+                const hiddenInfo = document.getElementById('hiddenCodesInfo');
+                hiddenInfo.classList.toggle('show');
+            }
+        });
+
+        // Auto-select first credit option on load
+        window.addEventListener('load', function() {
+            const firstOption = document.querySelector('.credit-option');
+            if (firstOption) {
+                firstOption.click();
+            }
+        });
+    </script>
+</body>
+</html>
