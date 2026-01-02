@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Stream Loading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Main Loading Container */
+        .loading-container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Clean Movie Logo - No Background Cover */
+        .movie-logo {
+            width: 160px;
+            height: 100px;
+            margin: 0 auto 40px;
+            position: relative;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        .movie-icon {
+            font-size: 80px;
+            animation: iconPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.8));
+            color: #E50914;
+            display: block;
+            text-align: center;
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-top: 15px;
+            background: linear-gradient(45deg, #E50914, #FF6B6B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+
+        /* Happy Noel Text - Hidden by default */
+        .happy-noel {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: #FFD700;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            white-space: nowrap;
+        }
+
+        .happy-noel.active {
+            opacity: 1;
+            animation: noelGlow 3s ease-in-out infinite;
+        }
+
+        /* Loading Progress */
+        .loading-status {
+            font-size: 16px;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        .progress-container {
+            width: 350px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #E50914, #FF6B6B);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            animation: progressShine 1.5s ease-in-out infinite;
+        }
+
+        .percentage {
+            font-size: 32px;
+            font-weight: 300;
+            margin-top: 20px;
+            letter-spacing: 2px;
+        }
+
+        /* Frozen Effects - Hidden by default, only show in December */
+        .frozen-effects {
+            display: none;
+        }
+
+        .frozen-effects.active {
+            display: block;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #fff;
+            font-size: 14px;
+            animation: snowfall linear infinite;
+            opacity: 0;
+        }
+
+        .ice-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            animation: iceFlow linear infinite;
+        }
+
+        /* Animations */
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes noelGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6); }
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-30px); }
+            100% { transform: translateX(30px); }
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes iceFlow {
+            0% {
+                transform: translateY(-100vh) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .movie-logo {
+                width: 120px;
+                height: 75px;
+            }
+            
+            .movie-icon {
+                font-size: 60px;
+            }
+            
+            .brand-name {
+                font-size: 20px;
+            }
+            
+            .progress-container {
+                width: 280px;
+            }
+            
+            .happy-noel {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <!-- Clean Movie Logo -->
+        <div class="movie-logo">
+            <div class="movie-icon">🎬</div>
+            <div class="brand-name">REDSTREAM</div>
+            
+            <!-- Happy Noel Text - Hidden initially -->
+            <div class="happy-noel" id="happyNoel">Happy Noel</div>
+        </div>
+
+        <!-- Loading Progress -->
+        <div class="loading-status">Loading your movie experience...</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="percentage" id="percentage">0%</div>
+    </div>
+
+    <!-- Frozen Effects Container -->
+    <div class="frozen-effects" id="frozenEffects"></div>
+
+    <script>
+        class CleanMovieLoader {
+            constructor() {
+                this.progress = 0;
+                this.progressBar = document.getElementById('progressBar');
+                this.percentageElement = document.getElementById('percentage');
+                this.happyNoelElement = document.getElementById('happyNoel');
+                this.frozenEffects = document.getElementById('frozenEffects');
+                this.isDecember = this.checkDecemberSeason();
+                this.redirectUrl = 'pay.html'; // Change this to your website URL
+                
+                this.init();
+            }
+
+            init() {
+                // Check if it's December/Noel season
+                if (this.isDecember) {
+                    this.activateNoelSeason();
+                }
+                
+                // Start loading
+                this.startLoading();
+            }
+
+            checkDecemberSeason() {
+                const currentMonth = new Date().getMonth();
+                return currentMonth === 11; // December (0-indexed)
+            }
+
+            activateNoelSeason() {
+                // Show Happy Noel text
+                this.happyNoelElement.classList.add('active');
+                
+                // Activate frozen effects (only flow, no tree)
+                this.frozenEffects.classList.add('active');
+                this.createFrozenFlow();
+            }
+
+            createFrozenFlow() {
+                // Create gentle snowfall
+                setInterval(() => {
+                    if (this.progress < 100) {
+                        const snowflake = document.createElement('div');
+                        snowflake.className = 'snowflake';
+                        snowflake.textContent = '❄';
+                        snowflake.style.left = Math.random() * 100 + '%';
+                        snowflake.style.animationDuration = Math.random() * 4 + 3 + 's';
+                        snowflake.style.fontSize = Math.random() * 6 + 10 + 'px';
+                        
+                        this.frozenEffects.appendChild(snowflake);
+                        
+                        setTimeout(() => {
+                            snowflake.remove();
+                        }, 7000);
+                    }
+                }, 300);
+
+                // Create ice particles flow
+                setInterval(() => {
+                    if (this.progress < 100) {
+                        const iceParticle = document.createElement('div');
+                        iceParticle.className = 'ice-particle';
+                        iceParticle.style.left = Math.random() * 100 + '%';
+                        iceParticle.style.animationDuration = Math.random() * 5 + 3 + 's';
+                        
+                        this.frozenEffects.appendChild(iceParticle);
+                        
+                        setTimeout(() => {
+                            iceParticle.remove();
+                        }, 8000);
+                    }
+                }, 500);
+            }
+
+            startLoading() {
+                const loadingInterval = setInterval(() => {
+                    this.progress += Math.random() * 2 + 1.5; // Steady loading speed
+                    
+                    if (this.progress >= 100) {
+                        this.progress = 100;
+                        clearInterval(loadingInterval);
+                        this.completeLoading();
+                    }
+                    
+                    this.updateUI();
+                }, 150);
+            }
+
+            updateUI() {
+                this.progressBar.style.width = this.progress + '%';
+                this.percentageElement.textContent = Math.floor(this.progress) + '%';
+            }
+
+            completeLoading() {
+                // Add completion effect
+                this.percentageElement.style.color = '#00FF00';
+                this.percentageElement.style.textShadow = '0 0 15px #00FF00';
+                
+                // Wait a moment then redirect to user's website
+                setTimeout(() => {
+                    console.log('Loading complete - redirecting to main website');
+                    // Redirect to your website
+                    window.location.href = this.redirectUrl;
+                }, 1000);
+            }
+        }
+
+        // Initialize loader when page loads
+        window.addEventListener('load', () => {
+            new CleanMovieLoader();
+        });
+
+        // Add subtle mouse interaction
+        document.addEventListener('mousemove', (e) => {
+            const logo = document.querySelector('.movie-logo');
+            const x = (e.clientX / window.innerWidth - 0.5) * 10;
+            const y = (e.clientY / window.innerHeight - 0.5) * 10;
+            
+            logo.style.transform = `translateX(${x}px) translateY(${y}px)`;
+        });
+    </script>
+</body>
+</html>
